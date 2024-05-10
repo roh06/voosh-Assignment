@@ -25,8 +25,6 @@ router.post("/signup", async (req,res) => {
             isPublic: isPublic,
             role: User.schema.path('role').enumValues[1]
         });
-        // console.log(User.schema.path('role').enumValues[1])
-    
         res.status(200).json({
             message: `Admin created Successfully with ${name}`
         })

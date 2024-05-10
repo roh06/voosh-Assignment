@@ -4,6 +4,7 @@ const jwt = require("jsonwebtoken");
 const jwtPassword = "12345";
 const User = require("../db/index");
 const userMiddleware = require('../middleware/user');
+const { route } = require('./admin');
 
 
 router.get("/", (req,res) => {
@@ -55,8 +56,6 @@ router.post('/signin', async(req, res) => {
 
 router.get('/myprofile', userMiddleware, async(req, res) => {
     const user = jwt.verify(req.headers.authorization, jwtPassword);
-    console.log(user);
-
     try{
         const findUser = await User.find({
             email: user
@@ -69,5 +68,66 @@ router.get('/myprofile', userMiddleware, async(req, res) => {
         })
     }
     
+})
+
+router.get('/viewprofiles', userMiddleware, async(req, res) => {
+    const result = await User.find({role: 'user', isPublic: true});
+    res.status(200).json(result);
+})
+
+router.put('/update', userMiddleware, async(req, res) => {
+    const token = req.headers.authorization;
+    const decodedToken = jwt.verify(token, jwtPassword);
+    console.log(decodedToken);
+
+    try{
+        const user = await User.findOne({email: decodedToken});
+        if(!user) {
+            return res.status(404).json({msg: "User not found.!!"});
+        }
+        const {name, email, password, bio, phone, profilePicture} = req.body;
+
+        if(name){
+            user.name = name;
+        }
+        if(email){
+            user.email = email;
+        }
+        if(password){
+            user.password = password;
+        }
+        if(bio){
+            user.bio = bio;
+        }
+        if(phone){
+            user.phone = phone;
+        }
+        if(profilePicture){
+            user.profilePicture = profilePicture;
+        }
+
+        await user.save();
+        res.status(200).json({msg: "User updated Successfully!!"});
+    }
+    catch(err){
+        console.error(err.message);
+        res.status(500).send('Server Error');
+    }
+})
+
+router.put('/updatePrivacy', userMiddleware, async(req, res) => {
+    const token = req.headers.authorization;
+    const decodedToken = jwt.verify(token, jwtPassword);
+    console.log(decodedToken);
+    const userPrivacyUpdate = req.body.isPublic;
+    // console.log( "Rohan" +userPrivacyUpdate);
+    const user = await User.findOneAndUpdate(
+        {email: decodedToken},
+        {$set: {isPublic: userPrivacyUpdate}}
+    );
+    if(!user){
+        return res.status(404).json({msg: "User not found"});
+    }
+    res.status(200).json({msg: `Account status set to ${userPrivacyUpdate}`});
 })
 module.exports = router;
