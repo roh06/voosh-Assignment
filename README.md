@@ -13,6 +13,8 @@ Admin routes:-
 
 
 
+To Install all the dependencies:- 
+run - npm init
 
 TO setup this in your local:- 
 add your connection string in index.js file.

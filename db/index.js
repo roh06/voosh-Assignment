@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const password = encodeURIComponent("Rohan@2000");
+const password = encodeURIComponent("use your password here");
 
 mongoose.connect(`mongodb+srv://rohansachan08:${password}@cluster1.3dp46xd.mongodb.net/api-assignment`, {
     useNewURLParser: true,
